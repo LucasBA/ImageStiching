@@ -1,6 +1,5 @@
 # DebriSat
-Processing of debris fragments
-
+Stiching X-ray Images
 Depends on the python open  cv2 libraries
                             numpy
                             scipy
