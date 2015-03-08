@@ -1,5 +1,5 @@
-# DebriSat
-Stiching X-ray Images
+# Image Sticthing
+Stitching X-ray Images
 Depends on the python open  cv2 libraries
                             numpy
                             scipy
