@@ -106,10 +106,10 @@ for i in range(2338):              #iterates through the image
 				print "Found the img3 line at x=" 
 				print i
 				m3=i
-				break
     else:
-        m3=m2	
-background = zeros([15985,6994], dtype=np.uint8)
+        m3=m2
+				break	
+background = zeros([6917,15985], dtype=np.uint8)
 #background = zeros([6994,6717], dtype=np.uint8)
 print 'ABCNBCBAC', background.shape
 yb=(n1-n2)
@@ -117,18 +117,17 @@ yyb=3197-yb
 yc=yb+n3-n2
 yyc=yyb-(n3-n2)
 xb=(m1-m2)
-xxb=xb-m1
+xxb=2239-xb
 xc=xb+m3-m2
-xxc=2239-(m3-m2)
-print "m1 ", m1
+xxc=xb-(m3-m2)
 print yb
 print yc
 print 'Image 1 shape', img1.shape
-background[3197*3:3197*4, 2239*2:2239*3]=img1[:3197, :2239]
+background[3197:3197*2, 2239*2:2239*3]=img1[:3197, :2239]
 
-background[3197*3-yb:3197*3+yyb, 2239-m1+xxb:2239*2+xxb]=img2[:3197, :2239]
+background[3197-yb:3197+yyb, 2239-m1:2239*2+xxb]=img2[:3197, :2239]
 
-background[3197*3-yc:3197*3+yyc, 0+(m3-m2):xxc+42]=img3[:3197, :2239]
+background[3197-yc:3197+yyc, 0-xc:2239+xxc]=img3[:3197, :2239]
 
 cv2.imwrite("outt.jpg",background) 
 cv2.waitKey(0)
