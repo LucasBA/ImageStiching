@@ -59,7 +59,7 @@ def rotate_images():
     empty_img5 = 0
     empty_img6 = 0
     ''' The empty images are used to index the list by 7 
-        so the images' names corispond with their index
+        so the images' names correspond with their index
     '''
     rot_imgs = (empty_img0, empty_img1, empty_img2, empty_img3, empty_img4, 
                 empty_img5, empty_img6, img7, img8, img9, img10, img11, img12)
@@ -77,7 +77,11 @@ def scan_top_to_bottom(img,starting_point):
                 if imgx[i,350] < 35 and imgx[i,350] > 10:
                        if imgx[i,450] < 35 and imgx[i,450] > 10:
                         return i
-    return 0
+    if (starting_point==0):
+        return 0
+    else:
+        return vertical_length
+
 
 def scan_left_to_right(img, starting_point):
     ''' This for loop iterates across the image looking for a vertical guideline 
@@ -150,22 +154,22 @@ def place_image(img_name, img, n, m, updated_background):
         precise_y_offset = -n[6]+n[1]+vertical_length
         precise_x_offset = m[1]-m[2]-m[3]-m[5]-m[6]
     elif(img_name == 7):    
-        precise_y_offset = -n[7]-n[4]+n[1]+vertical_length
+        precise_y_offset = -n[7]-n[4]+n[1]+vertical_length+upper_offset
         precise_x_offset = m[1]-m[7]
     elif(img_name == 8):    
-        precise_y_offset = -n[8]+n[1]+vertical_length
+        precise_y_offset = -n[8]+n[1]+vertical_length+upper_offset
         precise_x_offset = m[1]-m[7]-m[8]        
     elif(img_name == 9):    
-        precise_y_offset = -n[9]+n[1]+vertical_length
+        precise_y_offset = -n[9]+n[1]+vertical_length+upper_offset
         precise_x_offset = m[1]-m[7]-m[8]-m[9]    
     elif(img_name == 10):    
-        precise_y_offset = -n[10]-n[7]-n[4]+n[1]+vertical_length*2
+        precise_y_offset = -n[10]-n[7]-n[4]+n[1]+vertical_length*2+upper_offset
         precise_x_offset = m[1]-m[10]
     elif(img_name == 11):    
-        precise_y_offset = -n[11]-n[7]-n[4]+n[1]+vertical_length*2
+        precise_y_offset = -n[11]-n[7]-n[4]+n[1]+vertical_length*2+upper_offset
         precise_x_offset = m[1]-m[10]-m[11]    
     elif(img_name == 12):    
-        precise_y_offset = -n[12]-n[7]-n[4]+n[1]+vertical_length*2
+        precise_y_offset = -n[12]-n[7]-n[4]+n[1]+vertical_length*2+upper_offset
         precise_x_offset = m[1]-m[10]-m[11]-m[12]    
     ''' This is where the paste occurs. A space is prepared in a particular locaton 
         then the contents of the image are writen into that space.
@@ -174,13 +178,17 @@ def place_image(img_name, img, n, m, updated_background):
                2239*x_axis_coefficent+precise_x_offset+uniform_x_offset:2239*(x_axis_coefficent+1)+uniform_x_offset+precise_x_offset]=img[:3197, :2239]
     return background
 
+def inverte(image):
+    image = (255-image)
+    cv2.imwrite('invDSF***.tif', image)
 
 if __name__ == '__main__':
     
-
+    vertical_length = 3196
     background = generate_workspace()
     imgs=import_first_six_images()
     rot_imgs = rotate_images()
+
     n1 = scan_top_to_bottom(imgs[1], 0)
     n2 = scan_top_to_bottom(imgs[2], 0)
     n3 = scan_top_to_bottom(imgs[3], 0)
@@ -193,11 +201,24 @@ if __name__ == '__main__':
     n10 = scan_top_to_bottom(rot_imgs[10], 3000)
     n11 = scan_top_to_bottom(rot_imgs[11], 3100)
     n12 = scan_top_to_bottom(rot_imgs[12], 3000)
+    upper_offset = scan_top_to_bottom(imgs[4], 100)
+    '''
+    y5 = scan_top_to_bottom(imgs[5], 100)
+    y6 = scan_top_to_bottom(imgs[6], 100)
+    y7 = scan_top_to_bottom(imgs[7], vertical_length/2)
+    y8 = scan_top_to_bottom(imgs[8], vertical_length/2)
+    y9 = scan_top_to_bottom(imgs[9], vertical_length/2)
+    '''
+
     empty_n0=0
     ''' The empty location is used to index the list by one 
         so the locations' names corispond with their index
     '''
     n = (empty_n0, n1, n2, n1, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12)
+    
+
+
+
     m1 = scan_left_to_right(imgs[1],0)
     m2 = scan_left_to_right(imgs[2],0)
     m3 = scan_left_to_right(imgs[3],0)
@@ -215,6 +236,10 @@ if __name__ == '__main__':
         so the locations' names corispond with their index
     '''
     m = (empty_m0, m1, m2, m1, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12)
+
+
+
+
     background = place_image(1,imgs[1], n, m, background)
     background = place_image(2,imgs[2], n, m, background)
     background = place_image(3,imgs[3], n, m, background)
@@ -227,6 +252,13 @@ if __name__ == '__main__':
     background = place_image(10,rot_imgs[10], n, m, background)
     background = place_image(11,rot_imgs[11], n, m, background)
     background = place_image(12,rot_imgs[12], n, m, background)
-    cv2.imwrite("NEWDSF***.jpg",background) 
+    #inverte(background)
+    cv2.imwrite("DSF***.tif", background) 
+    temp = np.array(0)
+    mask = cv2.inRange(background, 1, 30)
+    bImg = cv2.bitwise_or(mask, temp)
+    ret, thresh = cv2.threshold(bImg, 127, 255, 0)
+    cv2.imwrite("threshDSF***.tif", thresh) 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
