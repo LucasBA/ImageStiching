@@ -1,4 +1,4 @@
-# Image Sticthing
+# Image Stitching
 Stitching X-ray Images
 Depends on 
 python 2.7
