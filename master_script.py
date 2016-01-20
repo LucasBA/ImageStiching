@@ -6,7 +6,9 @@ from scipy.misc import imsave
 from numpy import zeros
 from PIL import Image
 from scipy import ndimage
-
+import sys
+import os 
+import time
 
 def generate_workspace():
     ''' This creates a black background that the images are pasted onto '''
@@ -14,16 +16,16 @@ def generate_workspace():
     print "generated background/workspace"
     return background
 
-def import_first_six_images():
+def import_first_six_images(foam_id):
     ''' This imports the first six images then saves them to list 
         and returns the list 
         '''
-    img1 = cv2.imread('001.tif',0)
-    img2 = cv2.imread('002.tif',0)
-    img3 = cv2.imread('003.tif',0)
-    img4 = cv2.imread('004.tif',0)
-    img5 = cv2.imread('005.tif',0)
-    img6 = cv2.imread('006.tif',0)
+    img1 = cv2.imread(foam_id+'/001.tif',0)
+    img2 = cv2.imread(foam_id+'/002.tif',0)
+    img3 = cv2.imread(foam_id+'/003.tif',0)
+    img4 = cv2.imread(foam_id+'/004.tif',0)
+    img5 = cv2.imread(foam_id+'/005.tif',0)
+    img6 = cv2.imread(foam_id+'/006.tif',0)
     empty_img0 = 0
     ''' The empty image is used to index the list by one 
         so the images' names corispond with their index
@@ -32,24 +34,38 @@ def import_first_six_images():
     print "imported all images"
     return imgs
 
-def rotate_images():
+def rotate_images(foam_id):
     ''' This imports the last six images then rotates them 
         because the panel is rotated when they are taken 
         saves them to list and returns the list 
         '''
-    img7 = cv2.imread('007.tif',0)
-    img8 = cv2.imread('008.tif',0)
-    img9 = cv2.imread('009.tif',0)
-    img10 = cv2.imread('010.tif',0)
-    img11 = cv2.imread('011.tif',0)
-    img12 = cv2.imread('012.tif',0)
 
+    img7 = cv2.imread(foam_id+'/007.tif',0)
+    img8 = cv2.imread(foam_id+'/008.tif',0)
+    img9 = cv2.imread(foam_id+'/009.tif',0)
+    img10 = cv2.imread(foam_id+'/010.tif',0)
+    img11 = cv2.imread(foam_id+'/011.tif',0)
+    img12 = cv2.imread(foam_id+'/012.tif',0)
+    (h, w) = img7.shape[:2]
+    center = (w / 2, h / 2)
+    M = cv2.getRotationMatrix2D((center), 180, 1.0)
+    
+    img7 = cv2.warpAffine(img7, M, (w, h))
+    img8 = cv2.warpAffine(img8, M, (w, h))
+    img9 = cv2.warpAffine(img9, M, (w, h))
+    img10 = cv2.warpAffine(img10, M, (w, h))
+    img11 = cv2.warpAffine(img11, M, (w, h))
+    img12 = cv2.warpAffine(img12, M, (w, h))
+
+    '''
     img7 = ndimage.rotate(img7, 180)
     img8 = ndimage.rotate(img8, 180)
     img9 = ndimage.rotate(img9, 180)
     img10 = ndimage.rotate(img10, 180)
     img11 = ndimage.rotate(img11, 180)
     img12 = ndimage.rotate(img12, 180)
+    '''
+
     print "rotated 007-012"
     empty_img0 = 0
     empty_img1 = 0
@@ -183,82 +199,78 @@ def inverte(image):
     cv2.imwrite('invDSF***.tif', image)
 
 if __name__ == '__main__':
-    
-    vertical_length = 3196
-    background = generate_workspace()
-    imgs=import_first_six_images()
-    rot_imgs = rotate_images()
+    if (len(sys.argv)>1):
+        for i in range(1, len(sys.argv)):
+            foam_id = sys.argv[i]        
+            if (os.path.isdir(foam_id)):
+                vertical_length = 3196
+                background = generate_workspace()
+                imgs=import_first_six_images(foam_id)
+                rot_imgs = rotate_images(foam_id)
 
-    n1 = scan_top_to_bottom(imgs[1], 0)
-    n2 = scan_top_to_bottom(imgs[2], 0)
-    n3 = scan_top_to_bottom(imgs[3], 0)
-    n4 = scan_top_to_bottom(imgs[4], 3000)
-    n5 = scan_top_to_bottom(imgs[5], 3000)
-    n6 = scan_top_to_bottom(imgs[6], 3000)
-    n7 = scan_top_to_bottom(rot_imgs[7], 3000)
-    n8 = scan_top_to_bottom(rot_imgs[8], 3000)
-    n9 = scan_top_to_bottom(rot_imgs[9], 3000)
-    n10 = scan_top_to_bottom(rot_imgs[10], 3000)
-    n11 = scan_top_to_bottom(rot_imgs[11], 3100)
-    n12 = scan_top_to_bottom(rot_imgs[12], 3000)
-    upper_offset = scan_top_to_bottom(imgs[4], 100)
-    '''
-    y5 = scan_top_to_bottom(imgs[5], 100)
-    y6 = scan_top_to_bottom(imgs[6], 100)
-    y7 = scan_top_to_bottom(imgs[7], vertical_length/2)
-    y8 = scan_top_to_bottom(imgs[8], vertical_length/2)
-    y9 = scan_top_to_bottom(imgs[9], vertical_length/2)
-    '''
+                n1 = scan_top_to_bottom(imgs[1], 0)
+                n2 = scan_top_to_bottom(imgs[2], 0)
+                n3 = scan_top_to_bottom(imgs[3], 0)
+                n4 = scan_top_to_bottom(imgs[4], 3000)
+                n5 = scan_top_to_bottom(imgs[5], 3000)
+                n6 = scan_top_to_bottom(imgs[6], 3000)
+                n7 = scan_top_to_bottom(rot_imgs[7], 3000)
+                n8 = scan_top_to_bottom(rot_imgs[8], 3000)
+                n9 = scan_top_to_bottom(rot_imgs[9], 3000)
+                n10 = scan_top_to_bottom(rot_imgs[10], 3000)
+                n11 = scan_top_to_bottom(rot_imgs[11], 3100)
+                n12 = scan_top_to_bottom(rot_imgs[12], 3000)
+                upper_offset = scan_top_to_bottom(imgs[4], 100)
 
-    empty_n0=0
-    ''' The empty location is used to index the list by one 
-        so the locations' names corispond with their index
-    '''
-    n = (empty_n0, n1, n2, n1, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12)
-    
+                empty_n0=0
+                ''' The empty location is used to index the list by one 
+                    so the locations' names corispond with their index
+                '''
+                n = (empty_n0, n1, n2, n1, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12)
+            
 
 
 
-    m1 = scan_left_to_right(imgs[1],0)
-    m2 = scan_left_to_right(imgs[2],0)
-    m3 = scan_left_to_right(imgs[3],0)
-    m4 = scan_left_to_right(imgs[4],0)
-    m5 = scan_left_to_right(imgs[5],0)
-    m6 = scan_left_to_right(imgs[6],0)
-    m7 = scan_left_to_right(rot_imgs[7],0)
-    m8 = scan_left_to_right(rot_imgs[8],0)
-    m9 = scan_left_to_right(rot_imgs[9],0)
-    m10 = scan_left_to_right(rot_imgs[10],0)
-    m11 = scan_left_to_right(rot_imgs[11],0)
-    m12 = scan_left_to_right(rot_imgs[12],0)
-    empty_m0=0
-    ''' The empty location is used to index the list by one 
-        so the locations' names corispond with their index
-    '''
-    m = (empty_m0, m1, m2, m1, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12)
+                m1 = scan_left_to_right(imgs[1],0)
+                m2 = scan_left_to_right(imgs[2],0)
+                m3 = scan_left_to_right(imgs[3],0)
+                m4 = scan_left_to_right(imgs[4],0)
+                m5 = scan_left_to_right(imgs[5],0)
+                m6 = scan_left_to_right(imgs[6],0)
+                m7 = scan_left_to_right(rot_imgs[7],0)
+                m8 = scan_left_to_right(rot_imgs[8],0)
+                m9 = scan_left_to_right(rot_imgs[9],0)
+                m10 = scan_left_to_right(rot_imgs[10],0)
+                m11 = scan_left_to_right(rot_imgs[11],0)
+                m12 = scan_left_to_right(rot_imgs[12],0)
+                empty_m0=0
+                ''' The empty location is used to index the list by one 
+                    so the locations' names corispond with their index
+                '''
+                m = (empty_m0, m1, m2, m1, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12)
 
 
 
 
-    background = place_image(1,imgs[1], n, m, background)
-    background = place_image(2,imgs[2], n, m, background)
-    background = place_image(3,imgs[3], n, m, background)
-    background = place_image(4,imgs[4], n, m, background)
-    background = place_image(5,imgs[5], n, m, background)
-    background = place_image(6,imgs[6], n, m, background)
-    background = place_image(7,rot_imgs[7], n, m, background)
-    background = place_image(8,rot_imgs[8], n, m, background)
-    background = place_image(9,rot_imgs[9], n, m, background)
-    background = place_image(10,rot_imgs[10], n, m, background)
-    background = place_image(11,rot_imgs[11], n, m, background)
-    background = place_image(12,rot_imgs[12], n, m, background)
-    #inverte(background)
-    cv2.imwrite("DSF***.tif", background) 
-    temp = np.array(0)
-    mask = cv2.inRange(background, 1, 30)
-    bImg = cv2.bitwise_or(mask, temp)
-    ret, thresh = cv2.threshold(bImg, 127, 255, 0)
-    cv2.imwrite("threshDSF***.tif", thresh) 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+                background = place_image(1,imgs[1], n, m, background)
+                background = place_image(2,imgs[2], n, m, background)
+                background = place_image(3,imgs[3], n, m, background)
+                background = place_image(4,imgs[4], n, m, background)
+                background = place_image(5,imgs[5], n, m, background)
+                background = place_image(6,imgs[6], n, m, background)
+                background = place_image(7,rot_imgs[7], n, m, background)
+                background = place_image(8,rot_imgs[8], n, m, background)
+                background = place_image(9,rot_imgs[9], n, m, background)
+                background = place_image(10,rot_imgs[10], n, m, background)
+                background = place_image(11,rot_imgs[11], n, m, background)
+                background = place_image(12,rot_imgs[12], n, m, background)
+                #inverte(background)
+                print "Prewrite"
+                cv2.imwrite("Processed/"+foam_id+".tif", background) 
+                print "postwrite"
+
+            else:
+                f = open('Processed/Missing.txt', 'a') 
+                f.write("Missing Directory "+foam_id+" "+time.asctime(time.localtime(time.time()))+'\n')
+                print "couldnt find " + foam_id
 
